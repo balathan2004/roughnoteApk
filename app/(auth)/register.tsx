@@ -12,11 +12,10 @@ import {
 import { useFocusEffect, useRouter } from "expo-router";
 import { styles } from "@/styles/auth.css";
 import { serverUrl } from "@/constants/env";
-import { useReplyContext } from "@/components/context/reply_context";
-import { UserCredResponse } from "@/components/interfaces";
+import { useReplyContext } from "@/src/components/context/reply_context";
 import { useTheme } from "@react-navigation/native";
-import { useLoadingContext } from "@/components/context/loading_context";
-import { storeData } from "@/components/credStore";
+import { storeData } from "@/src/components/credStore";
+import { useRegisterMutation } from "@/src/redux/api/authApi";
 const image = require("../../assets/images/roughnote.png");
 const SignUp: FC = () => {
   const [userData, setUserData] = useState({
@@ -24,8 +23,8 @@ const SignUp: FC = () => {
     password: "",
   });
 
-  const { setReply } = useReplyContext();
-  const { loading, setLoading } = useLoadingContext();
+  const [register, { isLoading }] = useRegisterMutation();
+
   const { colors } = useTheme();
   const router = useRouter();
   const handleInput =
@@ -41,34 +40,42 @@ const SignUp: FC = () => {
 
   const submitForm = async () => {
     if (!userData.email || !userData.password) {
-      setReply("Email and password are required!");
+      console.log("Email and password are required!");
       return;
     }
 
     if (userData.password.length < 6) {
-      setReply("Password must be at least 6 characters long.");
+      console.log("Password must be at least 6 characters long.");
+
       return;
     }
 
-    setLoading(true);
+    register(userData)
+      .unwrap()
+      .then((res) => {})
+      .catch((err) => {
+        console.log(err);
+      });
 
-    const response = await fetch(`${serverUrl}/api/auth/register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+    // setLoading(true);
 
-      body: JSON.stringify(userData),
-    });
-    const res = (await response.json()) as UserCredResponse;
-    setLoading(false);
-    if (res) {
-      setReply(res.message);
-      if (res.status == 200) {
-        storeData("userData", res.credentials);
-        router.push("/(tabs)");
-      }
-    }
+    // const response = await fetch(`${serverUrl}/api/auth/register`, {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+
+    //   body: JSON.stringify(userData),
+    // });
+    // const res = (await response.json()) as UserCredResponse;
+    // setLoading(false);
+    // if (res) {
+    //   setReply(res.message);
+    //   if (res.status == 200) {
+    //     storeData("userData", res.credentials);
+    //     router.push("/(tabs)");
+    //   }
+    // }
   };
 
   const resetState = () => {
@@ -80,7 +87,7 @@ const SignUp: FC = () => {
       return () => {
         resetState(); // Reset state when screen is unfocused
       };
-    }, [])
+    }, []),
   );
 
   return (
@@ -135,8 +142,8 @@ const SignUp: FC = () => {
         </Pressable>
         <View style={styles.button}>
           <Button
-            title={loading ? "Registering" : "Register"}
-            disabled={loading}
+            title={isLoading ? "Registering" : "Register"}
+            disabled={isLoading}
             onPress={submitForm}
           ></Button>
         </View>

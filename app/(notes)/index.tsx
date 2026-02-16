@@ -1,36 +1,22 @@
 import { styles as globalStyles } from "@/styles/global.css";
 import { styles } from "@/styles/notes.css";
 import { View, Text, Pressable } from "react-native";
-import { serverUrl } from "@/constants/env";
-import { useUserContext } from "@/components/context/user_context";
-import { useLoadingContext } from "@/components/context/loading_context";
-import { useReplyContext } from "@/components/context/reply_context";
+
 import { useEffect, useState } from "react";
-import {
-  docInterface,
-  docResponse,
-  ResponseConfig,
-  wholeDoc,
-} from "@/components/interfaces";
+import { Doc } from "@/src/components/interfaces";
 import { useTheme } from "@react-navigation/native";
 import { Tabs, useLocalSearchParams } from "expo-router";
-import { getData, storeData } from "@/components/credStore";
 import { TextInput } from "react-native-paper";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import lodash from "lodash";
-import { useDocContext } from "@/components/context/doc_wrapper";
-import { useNetworkContext } from "@/components/context/network_wrapper";
+import { useUpdateDocMutation } from "@/src/redux/api/docsApi";
 
 export default function HomeScreen() {
   const { colors } = useTheme();
   const doc_id = useLocalSearchParams().doc_id as string;
-  const { docData, setDocData } = useDocContext();
-  const { setReply } = useReplyContext();
-  const { setLoading } = useLoadingContext();
-  const [currentDocData, setCurrentDocData] = useState<docInterface | null>(
-    null
-  );
-  const { isOnline } = useNetworkContext();
+
+  const [updateDoc, { isLoading }] = useUpdateDocMutation();
+
+  const [currentDocData, setCurrentDocData] = useState<Doc | null>(null);
   const [isEditted, setIsEditted] = useState(false);
   const [caption, setCaption] = useState("");
   const [docName, setDocName] = useState("");
@@ -47,75 +33,33 @@ export default function HomeScreen() {
     }
   };
 
-  const handleSubmit = async () => {
-    if (!isEditted) {
-      return;
-    }
-
-    const newDoc = currentDocData
-      ? { ...currentDocData, doc_text: caption || "", doc_name: docName || "" }
-      : null;
-
-    if (!newDoc) {
-      return;
-    }
-
-    setLoading(true);
-
-    const timeStamp = new Date().getTime();
-
-    setCurrentDocData(newDoc);
-
-    if (isOnline) {
-      await sendData({ ...newDoc, timeStamp });
-    }
-
-    setDocData((prev) => {
-      const filtered = prev?.data.filter(
-        (item) => item.doc_id !== currentDocData?.doc_id
-      );
-
-      const newArray = [...(filtered || []), newDoc];
-      const metadata = {
-        lastUpdated: timeStamp,
-      };
-
-      return { data: newArray, metadata }; // Return filtered array instead of null
-    });
-  };
+  const handleSubmit = () => {};
 
   async function sendData(data: object) {
-    const response = await fetch(`${serverUrl}/api/docs/update_doc`, {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    const res = (await response.json()) as ResponseConfig;
-
-    if (res) {
-      setReply(res.message);
-    }
+    const response = await updateDoc(data)
+      .unwrap()
+      .then((res) => res)
+      .catch((err) => {
+        console.log("updateDoc error", err);
+      });
   }
 
-  useEffect(() => {
-    async function handler() {
-      if (!docData) {
-        return;
-      }
+  // useEffect(() => {
+  //   async function handler() {
+  //     if (!docData) {
+  //       return;
+  //     }
 
-      setCurrentDocData(() => {
-        const newData =
-          docData.data.find((item) => item.doc_id === doc_id) || null;
-        setCaption(newData?.doc_text || "");
-        setDocName(newData?.doc_name || "");
-        return newData;
-      });
-    }
-    handler();
-  }, [doc_id]);
+  //     setCurrentDocData(() => {
+  //       const newData =
+  //         docData.data.find((item) => item.doc_id === doc_id) || null;
+  //       setCaption(newData?.doc_text || "");
+  //       setDocName(newData?.doc_name || "");
+  //       return newData;
+  //     });
+  //   }
+  //   handler();
+  // }, [doc_id]);
 
   return (
     <View style={globalStyles.container}>

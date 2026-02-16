@@ -1,26 +1,20 @@
 import React, { Component, useEffect } from "react";
-import { useUserContext } from "@/components/context/user_context";
 import { router } from "expo-router";
-import { useLoadingContext } from "@/components/context/loading_context";
-import { userInterface } from "@/components/interfaces";
+
+import { Doc, User } from "@/src/components/interfaces";
 import { Image, View } from "react-native";
 import { styles } from "@/styles/global.css";
 const image = require("../assets/images/roughnote.png");
-import { getData } from "@/components/credStore";
+import { getData } from "@/src/components/credStore";
 
 export default function index() {
-  const { setUserCred } = useUserContext();
-  const { setLoading } = useLoadingContext();
-
   useEffect(() => {
     const checkUserLogin = async () => {
       try {
-        setLoading(true);
-        const userCred = (await getData("userData")) as userInterface;
+        const userCred = (await getData("userData")) as User;
 
         setTimeout(() => {
           if (userCred) {
-            setUserCred(userCred);
             router.replace("/(tabs)"); // Navigate to tabs if logged in
           } else {
             router.replace("/(auth)"); // Navigate to auth if not logged in
@@ -28,8 +22,6 @@ export default function index() {
         }, 500);
       } catch (err) {
         console.log("error is", err);
-      } finally {
-        setLoading(false);
       }
     };
     checkUserLogin();

@@ -10,27 +10,24 @@ import {
   Image,
 } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
-import { storeData } from "@/components/credStore";
-import { UserCredResponse } from "@/components/interfaces";
-import { useLoadingContext } from "@/components/context/loading_context";
-import { useReplyContext } from "@/components/context/reply_context";
+import { storeData } from "@/src/components/credStore";
+import { useReplyContext } from "@/src/components/context/reply_context";
 import { serverUrl } from "@/constants/env";
-import { useUserContext } from "@/components/context/user_context";
 import { styles } from "../../styles/auth.css";
 import { useTheme } from "@react-navigation/native";
+import { useLoginMutation } from "@/src/redux/api/authApi";
 const image = require("../../assets/images/roughnote.png");
 
 const Login: FC = () => {
   const router = useRouter();
+
+  const [login, { isLoading }] = useLoginMutation();
 
   const [userData, setUserData] = useState({
     email: "",
     password: "",
   });
 
-  const { setReply } = useReplyContext();
-  const { loading, setLoading } = useLoadingContext();
-  const { setUserCred } = useUserContext();
   const { colors } = useTheme();
 
   const resetState = () => {
@@ -42,7 +39,7 @@ const Login: FC = () => {
       return () => {
         resetState(); // Reset state when screen is unfocused
       };
-    }, [])
+    }, []),
   );
 
   const handleInput =
@@ -58,31 +55,15 @@ const Login: FC = () => {
 
   const submitForm = async () => {
     if (userData.email && userData.password) {
-      setLoading(true);
-      const response = await fetch(`${serverUrl}/api/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify(userData),
-      });
-      const res = (await response.json()) as UserCredResponse;
-      setLoading(false);
-      setReply(res.message);
-      if (res) {
-        if (res.status == 200 && res.credentials) {
-          await storeData("userData", res.credentials)
-            .then(() => {
-              console.log("value stored");
-              setUserCred(res.credentials);
-            })
-            .catch((err) => console.log("error saving"));
+      const res = await login(userData)
+        .unwrap()
+        .then((res) => {
+          console.log({ res });
           router.push("/(tabs)");
-        }
-      }
-    } else {
-      setReply("field missing");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
   };
 
@@ -133,8 +114,8 @@ const Login: FC = () => {
 
         <View style={styles.button}>
           <Button
-            title={loading ? "Logging in..." : "Login"}
-            disabled={loading}
+            title={isLoading ? "Logging in..." : "Login"}
+            disabled={isLoading}
             onPress={submitForm}
           ></Button>
         </View>

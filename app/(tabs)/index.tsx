@@ -1,38 +1,15 @@
 import MasonryList from "reanimated-masonry-list";
 import { styles as globalStyles } from "@/styles/global.css";
 import { styles } from "@/styles/home.css";
-import { View, Text, ScrollView } from "react-native";
-import HoverCard from "@/components/elements/hover_card";
-import { serverUrl } from "@/constants/env";
-import { useUserContext } from "@/components/context/user_context";
-import { useLoadingContext } from "@/components/context/loading_context";
-import { useReplyContext } from "@/components/context/reply_context";
-import { useEffect, useMemo, useState } from "react";
-import { docInterface, docResponse, wholeDoc } from "@/components/interfaces";
+import { View, Text } from "react-native";
+import HoverCard from "@/src/components/elements/hover_card";
+import { Doc } from "@/src/components/interfaces";
 import { useTheme } from "@react-navigation/native";
-import { useNetworkContext } from "@/components/context/network_wrapper";
-import { getData, storeData } from "@/components/credStore";
-import { useDocContext } from "@/components/context/doc_wrapper";
+import { useGetAllDocsQuery } from "@/src/redux/api/docsApi";
 
 export default function HomeScreen() {
   const { colors } = useTheme();
-  const { userCred, setUserCred } = useUserContext();
-  const { setLoading } = useLoadingContext();
-  const { setReply } = useReplyContext();
-  const { isOnline } = useNetworkContext();
-  const { docData, setDocData } = useDocContext();
-
-  const docs = useMemo(() => docData?.data ?? [], [docData]);
-
-  const fetchData = async () => {
-    
-  };
-
-  useEffect(() => {
-    if (userCred) {
-      fetchData();
-    }
-  }, [userCred]);
+  const { data: { data: docsData } = {}, isLoading } = useGetAllDocsQuery({});
 
   return (
     <View style={globalStyles.container}>
@@ -40,14 +17,13 @@ export default function HomeScreen() {
         Your Notes
       </Text>
       <View style={styles.home_container}>
-      
         <MasonryList // Specify the generic type
-          data={docs ?? []}
+          data={docsData ?? []}
           keyExtractor={(item) => item.id} // Explicit cast
           numColumns={2}
           showsVerticalScrollIndicator={false}
           renderItem={({ item, i }: { item: unknown; i: number }) => {
-            const typedItem = item as docInterface; // Type assertion
+            const typedItem = item as Doc; // Type assertion
             return <HoverCard data={typedItem} />;
           }}
         />
