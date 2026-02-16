@@ -11,11 +11,10 @@ import {
 } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { storeData } from "@/src/components/credStore";
-import { useReplyContext } from "@/src/components/context/reply_context";
-import { serverUrl } from "@/constants/env";
 import { styles } from "../../styles/auth.css";
 import { useTheme } from "@react-navigation/native";
 import { useLoginMutation } from "@/src/redux/api/authApi";
+import CustomToast from "@/src/components/elements/CustomToast";
 const image = require("../../assets/images/roughnote.png");
 
 const Login: FC = () => {
@@ -58,10 +57,12 @@ const Login: FC = () => {
       const res = await login(userData)
         .unwrap()
         .then((res) => {
-          console.log({ res });
+        
+          CustomToast(res.message);
           router.push("/(tabs)");
         })
         .catch((err) => {
+          CustomToast(err.data.message || "Login failed");
           console.log(err);
         });
     }

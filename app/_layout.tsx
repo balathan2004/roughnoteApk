@@ -12,8 +12,7 @@ import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { PaperProvider } from "react-native-paper";
 import { SafeAreaView } from "react-native";
-import { styles } from "@/styles/global.css";
-import NewtworkWrapper from "@/src/components/context/network_wrapper";
+import { styles } from "@/styles/global.css"
 import DocDataHolder from "@/src/components/context/doc_wrapper";
 import ContextWrapper from "@/src/components/context/context_wrapper";
 import { Provider } from "react-redux";
@@ -41,23 +40,32 @@ export default function RootLayout() {
   return (
     <PaperProvider>
       <Provider store={store}>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <SafeAreaView style={styles.safearea}>
-          <DocDataHolder>
-            <ContextWrapper>
-              <Stack>
-                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="+not-found" />
-                <Stack.Screen name="index" options={{ headerShown: false }} />
-                <Stack.Screen name="(notes)" options={{ headerShown: false }} />
-              </Stack>
-            </ContextWrapper>
-          </DocDataHolder>
+        <ThemeProvider value={DarkTheme}>
+          <SafeAreaView style={styles.safearea}>
+            <DocDataHolder>
+              <ContextWrapper>
+                <Stack>
+                  <Stack.Screen
+                    name="(auth)"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="(tabs)"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen name="+not-found" />
+                  <Stack.Screen name="index" options={{ headerShown: false }} />
+                  <Stack.Screen
+                    name="(notes)"
+                    options={{ headerShown: false }}
+                  />
+                </Stack>
+              </ContextWrapper>
+            </DocDataHolder>
 
-          <StatusBar style="auto" />
-        </SafeAreaView>
-      </ThemeProvider>
+            <StatusBar style="auto" />
+          </SafeAreaView>
+        </ThemeProvider>
       </Provider>
     </PaperProvider>
   );

@@ -1,8 +1,7 @@
 import { styles as globalStyles } from "@/styles/global.css";
 import { styles } from "@/styles/notes.css";
-import { View, Text, Pressable } from "react-native";
-
-import { useEffect, useState } from "react";
+import { View, Text, Pressable } from "react-native";3
+import { useState } from "react";
 import { Doc } from "@/src/components/interfaces";
 import { useTheme } from "@react-navigation/native";
 import { Tabs, useLocalSearchParams } from "expo-router";
@@ -13,6 +12,8 @@ import { useUpdateDocMutation } from "@/src/redux/api/docsApi";
 export default function HomeScreen() {
   const { colors } = useTheme();
   const doc_id = useLocalSearchParams().doc_id as string;
+
+  console.log({ doc_id });
 
   const [updateDoc, { isLoading }] = useUpdateDocMutation();
 
