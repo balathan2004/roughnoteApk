@@ -6,10 +6,21 @@ import HoverCard from "@/src/components/elements/hover_card";
 import { Doc } from "@/src/components/interfaces";
 import { useTheme } from "@react-navigation/native";
 import { useGetAllDocsQuery } from "@/src/redux/api/docsApi";
+import { useEffect } from "react";
+import { addNote,createTable } from "@/src/db";
 
 export default function HomeScreen() {
   const { colors } = useTheme();
   const { data: { data: docsData } = {}, isLoading } = useGetAllDocsQuery({});
+
+  useEffect(() => {
+    if (docsData) {
+      createTable();
+      docsData.forEach((doc: Doc) => {
+        addNote(doc);
+      });
+    }
+  }, [docsData]);
 
   return (
     <View style={globalStyles.container}>
