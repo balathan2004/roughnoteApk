@@ -6,21 +6,40 @@ import HoverCard from "@/src/components/elements/hover_card";
 import { Doc } from "@/src/components/interfaces";
 import { useTheme } from "@react-navigation/native";
 import { useGetAllDocsQuery } from "@/src/redux/api/docsApi";
-import { useEffect } from "react";
-import { addNote,createTable } from "@/src/db";
+import { useEffect, useState } from "react";
+import { addNote, getAllNotes } from "@/src/db";
 
 export default function HomeScreen() {
   const { colors } = useTheme();
   const { data: { data: docsData } = {}, isLoading } = useGetAllDocsQuery({});
 
+  const [localData, setLocalData] = useState<Doc[]>([]);
+
+
+  const fetchDocs = async () => {
+    if (!docsData) return;
+
+    const promises = docsData.map((doc) => addNote(doc));
+
+    await Promise.all(promises).catch((error) => {
+      console.error("Error saving docs:", error);
+    });
+  };
+
   useEffect(() => {
     if (docsData) {
-      createTable();
-      docsData.forEach((doc: Doc) => {
-        addNote(doc);
-      });
+      fetchDocs();
     }
   }, [docsData]);
+
+  useEffect(() => {
+    const fetchLocalNotes = async () => {
+      const localNotes = await getAllNotes();
+      setLocalData(localNotes);
+    };
+
+    fetchLocalNotes();
+  }, []);
 
   return (
     <View style={globalStyles.container}>
@@ -29,7 +48,7 @@ export default function HomeScreen() {
       </Text>
       <View style={styles.home_container}>
         <MasonryList // Specify the generic type
-          data={docsData ?? []}
+          data={localData ?? []}
           keyExtractor={(item) => item.id} // Explicit cast
           numColumns={2}
           showsVerticalScrollIndicator={false}

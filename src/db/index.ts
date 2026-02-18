@@ -1,20 +1,34 @@
-import SQLite from "expo-sqlite";
-import { Doc } from "../components/interfaces";
-const db = await SQLite.openDatabaseAsync("notes");
+import * as SQLite from "expo-sqlite";
 
-async function createTable() {
-  await db.runAsync(`CREATE TABLE IF NOT EXISTS notes (
-  doc_id TEXT PRIMARY KEY NOT NULL,
-  doc_text TEXT,
-  doc_name TEXT,
-  uid TEXT,
-  doc_created INTEGER,
-  lastUpdated INTEGER,
-  deleted INTEGER DEFAULT 0
-);`);
+import { Doc } from "../components/interfaces";
+
+let db: SQLite.SQLiteDatabase;
+
+export async function getDB() {
+  if (!db) {
+    db = await SQLite.openDatabaseAsync("notes");
+
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS notes (
+        doc_id TEXT PRIMARY KEY NOT NULL,
+        doc_text TEXT,
+        doc_name TEXT,
+        uid TEXT,
+        doc_created INTEGER,
+        lastUpdated INTEGER,
+        deleted INTEGER DEFAULT 0
+      );
+    `);
+
+    console.log("DB Ready");
+  }
+
+  return db;
 }
 
 async function addNote(doc: Doc) {
+  const db = await getDB();
+
   await db.runAsync(`INSERT INTO notes VALUES (?, ?, ?, ?, ?, ?, ?)`, [
     doc.doc_id,
     doc.doc_text,
@@ -26,4 +40,23 @@ async function addNote(doc: Doc) {
   ]);
 }
 
-export { db, createTable, addNote };
+async function getAllNotes(): Promise<Doc[]> {
+  const db = await getDB();
+
+  const result = (await db.getAllAsync(
+    `SELECT * FROM notes WHERE deleted = 0`,
+  )) as any[];
+  return (
+    result.map((row) => ({
+      doc_id: row.doc_id,
+      doc_text: row.doc_text,
+      doc_name: row.doc_name,
+      uid: row.uid,
+      doc_created: row.doc_created,
+      lastUpdated: row.lastUpdated,
+      deleted: row.deleted === 1,
+    })) ?? []
+  );
+}
+
+export { addNote, getAllNotes };

@@ -3,7 +3,7 @@ import {
   Doc,
   ListRes,
   ResponseConfig,
-} from "@/server/utils/interfaces";
+} from "@/src/components/interfaces";
 import { baseApi } from "./baseApi";
 
 const docsApis = baseApi.injectEndpoints({
