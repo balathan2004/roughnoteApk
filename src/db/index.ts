@@ -40,6 +40,32 @@ async function addNote(doc: Doc) {
   ]);
 }
 
+async function updateDoc(doc: Doc) {
+  const db = await getDB();
+
+  const data = (await db.getFirstAsync(`SELECT * FROM notes WHERE doc_id = ?`, [
+    doc.doc_id,
+  ])) as Doc;
+
+  if (!data) return addNote(doc);
+
+  if (data.lastUpdated < doc.lastUpdated) {
+    await db.runAsync(
+      `UPDATE notes SET doc_text = ?, doc_name = ?, lastUpdated = ?, deleted = ? WHERE doc_id = ?`,
+      [
+        doc.doc_text,
+        doc.doc_name,
+        doc.lastUpdated,
+        doc.deleted ? 1 : 0,
+        doc.doc_id,
+      ],
+    );
+  } else {
+    console.log("local data is newer than incoming data, skipping update");
+    return;
+  }
+}
+
 async function getAllNotes(): Promise<Doc[]> {
   const db = await getDB();
 
@@ -59,4 +85,4 @@ async function getAllNotes(): Promise<Doc[]> {
   );
 }
 
-export { addNote, getAllNotes };
+export { addNote, getAllNotes ,updateDoc};
