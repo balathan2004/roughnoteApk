@@ -10,7 +10,7 @@ const baseQuery = fetchBaseQuery({
   // no credentials here
   prepareHeaders: (headers, { getState }) => {
     const state = getState() as RootState;
-    const token = state.auth.userData.accessToken;
+    const token = state.auth.user?.accessToken || false ;
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
     }
@@ -31,7 +31,7 @@ const baseQueryWithAuth = async (args: any, api: any, extraOptions: any) => {
     if (responseData && responseData.data) {
       const data = responseData?.data as User;
 
-      AsyncStorage.setItem("userData", JSON.stringify(data));
+      AsyncStorage.setItem("user", JSON.stringify(data));
       AsyncStorage.setItem("accessToken", data.accessToken || "");
       api.dispatch({
         type: "authApi/setAccessToken",

@@ -2,18 +2,17 @@ import { createSlice } from "@reduxjs/toolkit";
 import authApi from "./authApi";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
-import { User } from "@/src/components/interfaces";
+import { Doc, User } from "@/src/components/interfaces";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const initialState = {
-  userData: {
-    display_name: "",
-    email: "",
-    profile_url: "",
-    uid: "",
-    createdAt: 0,
-    accessToken: "",
-  } as User,
+type AuthState = {
+  user: User | null;
+  docs: Doc[];
+};
+
+const initialState: AuthState = {
+  user: null,
+  docs: [],
 };
 
 const authSlice = createSlice({
@@ -21,14 +20,19 @@ const authSlice = createSlice({
   name: "authSlice",
   reducers: {
     setAccessToken: (state, action) => {
-      state.userData.accessToken = action.payload;
+      if (state.user) {
+        state.user.accessToken = action.payload;
+      }
+    },
+    setDocs: (state, action) => {
+      state.docs = [...state.docs, ...action.payload];
     },
   },
   extraReducers: (builder) => {
     (builder.addMatcher(
       authApi.endpoints.login.matchFulfilled,
       (state, { payload }) => {
-        state.userData = payload.data;
+        state.user = payload.data;
 
         AsyncStorage.setItem("accessToken", payload.data?.accessToken || "");
       },
@@ -36,13 +40,13 @@ const authSlice = createSlice({
       builder.addMatcher(
         authApi.endpoints.getLoginCred.matchFulfilled,
         (state, { payload }) => {
-          state.userData = payload.data;
+          state.user = payload.data;
         },
       ));
   },
 });
 
-export const { setAccessToken } = authSlice.actions;
+export const { setAccessToken, setDocs } = authSlice.actions;
 
 export const useAuth = () => {
   const dispatch = useDispatch();
@@ -51,9 +55,13 @@ export const useAuth = () => {
     dispatch(setAccessToken(token));
   };
 
+  const addDocs = (docs: Doc[]) => {
+    dispatch(setDocs(docs));
+  };
+
   const data = useSelector((state: RootState) => state.auth);
 
-  return { ...data, changeAccessToken };
+  return { ...data, changeAccessToken, addDocs };
 };
 
 export default authSlice.reducer;

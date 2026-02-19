@@ -22,7 +22,7 @@ const Login: FC = () => {
 
   const [login, { isLoading }] = useLoginMutation();
 
-  const [userData, setUserData] = useState({
+  const [user, setUserData] = useState({
     email: "",
     password: "",
   });
@@ -53,8 +53,8 @@ const Login: FC = () => {
     };
 
   const submitForm = async () => {
-    if (userData.email && userData.password) {
-      const res = await login(userData)
+    if (user.email && user.password) {
+      const res = await login(user)
         .unwrap()
         .then((res) => {
         

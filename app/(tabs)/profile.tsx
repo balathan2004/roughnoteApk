@@ -18,7 +18,7 @@ const timerSetter = (message: string, time: number) => {
 export default function Profile() {
   const { colors } = useTheme();
 
-  const { userData } = useAuth();
+  const { user } = useAuth();
 
   const [data, setData] = useState<any>();
 
@@ -41,14 +41,14 @@ export default function Profile() {
           <View style={styles.img_container}>
             <Image style={styles.profile_avatar} source={image} />
             <Text style={[styles.label, { color: colors.text }]}>
-              {userData?.display_name}
+              {user?.display_name}
             </Text>
           </View>
           <Text style={[styles.label, { color: colors.text }]}>
-            {userData?.email}
+            {user?.email}
           </Text>
           <Text style={[styles.label, { color: colors.text }]}>
-            {timerSetter("Joined", userData?.createdAt || 0)}{" "}
+            {timerSetter("Joined", user?.createdAt || 0)}{" "}
           </Text>
           <View>
             <Button style={styles.button} mode="elevated">

@@ -8,38 +8,29 @@ import { useTheme } from "@react-navigation/native";
 import { useGetAllDocsQuery } from "@/src/redux/api/docsApi";
 import { useEffect, useState } from "react";
 import { addNote, getAllNotes } from "@/src/db";
+import { useAuth } from "@/src/redux/api/authSlice";
 
 export default function HomeScreen() {
   const { colors } = useTheme();
   const { data: { data: docsData } = {}, isLoading } = useGetAllDocsQuery({});
 
-  const [localData, setLocalData] = useState<Doc[]>([]);
+  const { docs } = useAuth();
 
+  // const fetchDocs = async () => {
+  //   if (!docsData) return;
 
-  const fetchDocs = async () => {
-    if (!docsData) return;
+  //   const promises = docsData.map((doc) => addNote(doc));
 
-    const promises = docsData.map((doc) => addNote(doc));
+  //   await Promise.all(promises).catch((error) => {
+  //     console.error("Error saving docs:", error);
+  //   });
+  // };
 
-    await Promise.all(promises).catch((error) => {
-      console.error("Error saving docs:", error);
-    });
-  };
-
-  useEffect(() => {
-    if (docsData) {
-      fetchDocs();
-    }
-  }, [docsData]);
-
-  useEffect(() => {
-    const fetchLocalNotes = async () => {
-      const localNotes = await getAllNotes();
-      setLocalData(localNotes);
-    };
-
-    fetchLocalNotes();
-  }, []);
+  // useEffect(() => {
+  //   if (docsData) {
+  //     fetchDocs();
+  //   }
+  // }, [docsData]);
 
   return (
     <View style={globalStyles.container}>
@@ -48,7 +39,7 @@ export default function HomeScreen() {
       </Text>
       <View style={styles.home_container}>
         <MasonryList // Specify the generic type
-          data={localData ?? []}
+          data={docs ?? []}
           keyExtractor={(item) => item.id} // Explicit cast
           numColumns={2}
           showsVerticalScrollIndicator={false}

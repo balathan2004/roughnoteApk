@@ -11,7 +11,7 @@ export default function index() {
   useEffect(() => {
     const checkUserLogin = async () => {
       try {
-        const userCred = (await getData("userData")) as User;
+        const userCred = (await getData("user")) as User;
 
         setTimeout(() => {
           if (userCred) {

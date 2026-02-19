@@ -18,7 +18,7 @@ import { storeData } from "@/src/components/credStore";
 import { useRegisterMutation } from "@/src/redux/api/authApi";
 const image = require("../../assets/images/roughnote.png");
 const SignUp: FC = () => {
-  const [userData, setUserData] = useState({
+  const [user, setUserData] = useState({
     email: "",
     password: "",
   });
@@ -39,18 +39,18 @@ const SignUp: FC = () => {
     };
 
   const submitForm = async () => {
-    if (!userData.email || !userData.password) {
+    if (!user.email || !user.password) {
       console.log("Email and password are required!");
       return;
     }
 
-    if (userData.password.length < 6) {
+    if (user.password.length < 6) {
       console.log("Password must be at least 6 characters long.");
 
       return;
     }
 
-    register(userData)
+    register(user)
       .unwrap()
       .then((res) => {})
       .catch((err) => {
@@ -65,14 +65,14 @@ const SignUp: FC = () => {
     //     "Content-Type": "application/json",
     //   },
 
-    //   body: JSON.stringify(userData),
+    //   body: JSON.stringify(user),
     // });
     // const res = (await response.json()) as UserCredResponse;
     // setLoading(false);
     // if (res) {
     //   setReply(res.message);
     //   if (res.status == 200) {
-    //     storeData("userData", res.credentials);
+    //     storeData("user", res.credentials);
     //     router.push("/(tabs)");
     //   }
     // }
