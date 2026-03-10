@@ -10,7 +10,7 @@ import { useAuth } from "@/src/redux/api/authSlice";
 export default function HomeScreen() {
   const { colors } = useTheme();
 
-  const { docs } = useAuth();
+  const { docs, user } = useAuth();
 
   return (
     <View style={globalStyles.container}>

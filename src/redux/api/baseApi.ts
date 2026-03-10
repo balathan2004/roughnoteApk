@@ -39,7 +39,7 @@ const baseQueryWithAuth = async (args: any, api: any, extraOptions: any) => {
       });
       result = await baseQuery(args, api, extraOptions);
     } else {
-      api.logout();
+      // api.logout();
     }
   }
   return result;

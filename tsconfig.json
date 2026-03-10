@@ -5,14 +5,18 @@
     "module": "esnext",
     "moduleResolution": "node",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ],
+      "@assets": ["assets/*"],
     }
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts",
     "styles/auth.css.ts"
+  ],
+  "exclude": [
+    "app"
   ]
 }

@@ -27,7 +27,6 @@ export interface Doc {
   uid: string;
   doc_created: number;
   lastUpdated: number;
-  clientOnlyDoc?: boolean;
   deleted?: boolean;
 }
 

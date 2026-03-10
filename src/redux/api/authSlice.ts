@@ -24,6 +24,9 @@ const authSlice = createSlice({
         state.user.accessToken = action.payload;
       }
     },
+    setUser: (state, action) => {
+      state.user = action.payload;
+    },
     setDocs: (state, action) => {
       state.docs = [...state.docs, ...action.payload];
     },
@@ -33,8 +36,8 @@ const authSlice = createSlice({
       authApi.endpoints.login.matchFulfilled,
       (state, { payload }) => {
         state.user = payload.data;
-
         AsyncStorage.setItem("accessToken", payload.data?.accessToken || "");
+        AsyncStorage.setItem("refreshToken", payload.data?.refreshToken || "");
       },
     ),
       builder.addMatcher(
@@ -46,7 +49,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { setAccessToken, setDocs } = authSlice.actions;
+export const { setAccessToken, setDocs,setUser } = authSlice.actions;
 
 export const useAuth = () => {
   const dispatch = useDispatch();
@@ -55,13 +58,17 @@ export const useAuth = () => {
     dispatch(setAccessToken(token));
   };
 
+  const addUser = (user: User) => {
+    dispatch(setUser(user));
+  }
+
   const addDocs = (docs: Doc[]) => {
     dispatch(setDocs(docs));
   };
 
   const data = useSelector((state: RootState) => state.auth);
 
-  return { ...data, changeAccessToken, addDocs };
+  return { ...data, changeAccessToken, addDocs ,addUser};
 };
 
 export default authSlice.reducer;

@@ -28,12 +28,6 @@ const authApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
-    logout: builder.query<DataRes<User>, void>({
-      query: (payload) => ({
-        url: "/auth/logout",
-        method: "GET",
-      }),
-    }),
     resetPasswordEmail: builder.mutation<ResponseConfig, { email: string }>({
       query: (payload) => ({
         url: `/auth/reset_password?email=${payload.email}`,
@@ -50,5 +44,5 @@ export const {
   useRegisterMutation,
   useLazyGetLoginCredQuery,
   useResetPasswordEmailMutation,
-  useLazyLogoutQuery,
+
 } = authApi;

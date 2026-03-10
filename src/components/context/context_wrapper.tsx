@@ -3,7 +3,6 @@ import { useAuth } from "@/src/redux/api/authSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getAllNotes, getDB, updateDoc } from "@/src/db";
 import { useGetAllDocsQuery } from "@/src/redux/api/docsApi";
-import { Doc } from "../interfaces";
 
 const ContextWrapper: FC<{ children: ReactNode }> = ({ children }) => {
   const { changeAccessToken, addDocs, user } = useAuth();
@@ -28,6 +27,7 @@ const ContextWrapper: FC<{ children: ReactNode }> = ({ children }) => {
     }
 
     const localNotes = await getAllNotes();
+    console.log({localNotes});
     addDocs(localNotes);
   };
 

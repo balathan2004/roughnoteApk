@@ -1,12 +1,12 @@
 import React, { FC } from "react";
-import { docInterface } from "../interfaces";
+import { Doc } from "../interfaces";
 import { View, Text, Pressable } from "react-native";
 import { styles } from "@/styles/home.css";
 import { useTheme } from "@react-navigation/native";
-import { router } from "expo-router";
+import { useRoute } from "@react-navigation/native";
 
 interface Props {
-  data: docInterface;
+  data: Doc;
 }
 
 const truncateText = (text: string, length = 30) => {
@@ -14,6 +14,9 @@ const truncateText = (text: string, length = 30) => {
 };
 
 const HoverCard: FC<Props> = ({ data }) => {
+
+  const router = useRoute();
+  
   const { colors } = useTheme();
 
   const redirectToNote = () => {

@@ -1,13 +1,14 @@
-import React, { Component, useEffect } from "react";
-import { router } from "expo-router";
-
-import { Doc, User } from "@/src/components/interfaces";
+import React, { useEffect } from "react";
+import { User } from "@/src/components/interfaces";
 import { Image, View } from "react-native";
 import { styles } from "@/styles/global.css";
-const image = require("../assets/images/roughnote.png");
+const image = require("./assets/images/roughnote.png");
 import { getData } from "@/src/components/credStore";
+import { useAuth } from "@/src/redux/api/authSlice";
 
-export default function index() {
+export default function Index() {
+  const { addUser } = useAuth();
+
   useEffect(() => {
     const checkUserLogin = async () => {
       try {
@@ -15,9 +16,10 @@ export default function index() {
 
         setTimeout(() => {
           if (userCred) {
-            router.replace("/(tabs)"); // Navigate to tabs if logged in
+            addUser(userCred);
+            // router.replace("/(tabs)"); // Navigate to tabs if logged in
           } else {
-            router.replace("/(auth)"); // Navigate to auth if not logged in
+            // router.replace("/(auth)"); // Navigate to auth if not logged in
           }
         }, 500);
       } catch (err) {

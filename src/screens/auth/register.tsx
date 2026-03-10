@@ -9,38 +9,20 @@ import {
   Pressable,
   Image,
 } from "react-native";
-import { useFocusEffect, useRouter } from "expo-router";
-import { storeData } from "@/src/components/credStore";
-import { styles } from "../../styles/auth.css";
+import { styles } from "@/styles/auth.css";
 import { useTheme } from "@react-navigation/native";
-import { useLoginMutation } from "@/src/redux/api/authApi";
-import CustomToast from "@/src/components/elements/CustomToast";
-const image = require("../../assets/images/roughnote.png");
-
-const Login: FC = () => {
-  const router = useRouter();
-
-  const [login, { isLoading }] = useLoginMutation();
-
+import { useRegisterMutation } from "@/src/redux/api/authApi";
+const image = require('@assets/images/roughnote.png');
+const RegisterScreen: FC = () => {
   const [user, setUserData] = useState({
     email: "",
     password: "",
   });
 
+  const [register, { isLoading }] = useRegisterMutation();
+
   const { colors } = useTheme();
-
-  const resetState = () => {
-    setUserData({ email: "", password: "" });
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-      return () => {
-        resetState(); // Reset state when screen is unfocused
-      };
-    }, []),
-  );
-
+  // const router = useRouter();
   const handleInput =
     (key: string) =>
     (event: NativeSyntheticEvent<TextInputChangeEventData>) => {
@@ -53,39 +35,79 @@ const Login: FC = () => {
     };
 
   const submitForm = async () => {
-    if (user.email && user.password) {
-      const res = await login(user)
-        .unwrap()
-        .then((res) => {
-        
-          CustomToast(res.message);
-          router.push("/(tabs)");
-        })
-        .catch((err) => {
-          CustomToast(err.data.message || "Login failed");
-          console.log(err);
-        });
+    if (!user.email || !user.password) {
+      console.log("Email and password are required!");
+      return;
     }
+
+    if (user.password.length < 6) {
+      console.log("Password must be at least 6 characters long.");
+
+      return;
+    }
+
+    register(user)
+      .unwrap()
+      .then((res) => {})
+      .catch((err) => {
+        console.log(err);
+      });
+
+    // setLoading(true);
+
+    // const response = await fetch(`${serverUrl}/api/auth/register`, {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+
+    //   body: JSON.stringify(user),
+    // });
+    // const res = (await response.json()) as UserCredResponse;
+    // setLoading(false);
+    // if (res) {
+    //   setReply(res.message);
+    //   if (res.status == 200) {
+    //     storeData("user", res.credentials);
+    //     router.push("/(tabs)");
+    //   }
+    // }
   };
+
+  const resetState = () => {
+    setUserData({ email: "", password: "" });
+  };
+
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     return () => {
+  //       resetState(); // Reset state when screen is unfocused
+  //     };
+  //   }, []),
+  // );
 
   return (
     <View style={styles.auth_container}>
       <View style={styles.inner_container}>
         <Image source={image}></Image>
-        <Text style={[styles.title, { color: colors.text }]}>Login Here</Text>
+        <Text style={[styles.title, { color: colors.text }]}>
+          Create New Account
+        </Text>
         <View style={styles.input_container}>
           <Text style={[styles.label, { color: colors.text }]}>
             Enter email
           </Text>
           <TextInput
             onChange={handleInput("email")}
-            placeholder="Enter email"
             style={[
               styles.input,
               { color: colors.text, borderColor: colors.text },
             ]}
             placeholderTextColor={colors.text}
+            placeholder="Enter email"
+            keyboardType="email-address"
             autoCapitalize="none" // To prevent auto-capitalization
+            autoComplete="email"
           />
         </View>
         <View style={styles.input_container}>
@@ -100,22 +122,23 @@ const Login: FC = () => {
             ]}
             placeholderTextColor={colors.text}
             placeholder="Enter password"
+            keyboardType="visible-password"
             autoCapitalize="none" // To prevent auto-capitalization
+            autoComplete="password"
           />
         </View>
         <Pressable
           onPress={() => {
-            router.push("/(auth)/register");
+            // router.push("/(auth)");
           }}
         >
           <Text style={[styles.forget_password, { color: colors.text }]}>
-            Create new account
+            Login here
           </Text>
         </Pressable>
-
         <View style={styles.button}>
           <Button
-            title={isLoading ? "Logging in..." : "Login"}
+            title={isLoading ? "Registering" : "Register"}
             disabled={isLoading}
             onPress={submitForm}
           ></Button>
@@ -125,4 +148,4 @@ const Login: FC = () => {
   );
 };
 
-export default Login;
+export default RegisterScreen;
